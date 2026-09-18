@@ -17,12 +17,10 @@ class TestModinv:
             modinv(2, 26)
     
     def test_modinv_negative_input(self):
-        # (-3 * x) ≡ 1 (mod 7) => x = 5 (since -3 ≡ 4 mod 7)
         result = modinv(-3, 7)
         assert ((-3 * result) % 7) == 1
     
     def test_modinv_prime_modulus(self):
-        # For prime p, modinv exists for all a in 1..p-1
         assert modinv(1, 11) == 1
         assert modinv(2, 11) == 6
         assert modinv(5, 11) == 9
@@ -31,7 +29,6 @@ class TestModinv:
         assert modinv(1, 100) == 1
     
     def test_modinv_large_numbers(self):
-        # modinv(123, 1000007) should work (1000007 is prime)
         result = modinv(123, 1000007)
         assert (123 * result) % 1000007 == 1
     
@@ -42,13 +39,11 @@ class TestModinv:
 
 
 class TestXorBytes:
-    """Test XOR encryption with repeating key"""
-    
+
     def test_xor_basic(self):
         assert xor_bytes(b"HELLO", b"KEYKE").hex() == "030015070a"
     
     def test_xor_roundtrip_property(self):
-        # xor_bytes(xor_bytes(d, k), k) == d
         data = b"HELLO WORLD"
         key = b"SECRET"
         encrypted = xor_bytes(data, key)
@@ -84,14 +79,12 @@ class TestXorBytes:
         data = b"\x00\x00\x00"
         key = b"ABC"
         encrypted = xor_bytes(data, key)
-        # Encrypted should be equal to key (0 XOR x = x)
         assert encrypted == key
     
     def test_xor_same_data_and_key(self):
         data = b"TEST"
         key = b"TEST"
         encrypted = xor_bytes(data, key)
-        # Any byte XOR itself is 0
         assert encrypted == b"\x00\x00\x00\x00"
 
 
@@ -124,7 +117,6 @@ class TestEgcd:
         assert 5 * x + 0 * y == 5
     
     def test_egcd_bezout_identity(self):
-        # General test: gcd = a*x + b*y must hold
         for a, b in [(17, 13), (100, 35), (-42, 28)]:
             gcd, x, y = egcd(a, b)
             assert a * x + b * y == gcd
@@ -132,42 +124,42 @@ class TestEgcd:
 
 class TestToNumbers:
     """Test text to number conversion"""
-    
+
     def test_to_numbers_basic(self):
-        assert to_numbers("abc") == [0, 1, 2]
-    
+        assert to_numbers("ABC") == [0, 1, 2]
+
     def test_to_numbers_full_alphabet(self):
-        result = to_numbers("abcdefghijklmnopqrstuvwxyz")
+        result = to_numbers("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         assert result == list(range(26))
-    
+
     def test_to_numbers_single_letter(self):
-        assert to_numbers("z") == [25]
-    
+        assert to_numbers("Z") == [25]
+
     def test_to_numbers_repeated(self):
-        assert to_numbers("aaa") == [0, 0, 0]
+        assert to_numbers("AAA") == [0, 0, 0]
 
 
 class TestToLetters:
     """Test number to text conversion"""
-    
+
     def test_to_letters_basic(self):
-        assert to_letters([0, 1, 2]) == "abc"
-    
+        assert to_letters([0, 1, 2]) == "ABC"
+
     def test_to_letters_full_range(self):
-        assert to_letters(list(range(26))) == "abcdefghijklmnopqrstuvwxyz"
-    
+        assert to_letters(list(range(26))) == "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
     def test_to_letters_single(self):
-        assert to_letters([25]) == "z"
-    
+        assert to_letters([25]) == "Z"
+
     def test_to_letters_empty(self):
         assert to_letters([]) == ""
 
 
 class TestRoundtrips:
     """Test conversions roundtrip correctly"""
-    
+
     def test_numbers_to_letters_roundtrip(self):
-        original = "thequickbrownfox"
+        original = "THEQUICKBROWNFOX"
         nums = to_numbers(original)
         result = to_letters(nums)
         assert result == original

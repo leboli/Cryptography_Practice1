@@ -1,8 +1,8 @@
-def to_numbers(text: str) -> list[int]: # normalised (uppercase) text -> 0..25
+def to_numbers(text: str) -> list[int]: # normalised text -> 0..25
     return [ord(c) - ord("A") for c in text]
 
 
-def to_letters(nums: list[int]) -> str: # 0..25 -> uppercase text
+def to_letters(nums: list[int]) -> str: # 0..25 -> text
     letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
                "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     return "".join([letters[i] for i in nums])
