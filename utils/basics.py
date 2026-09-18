@@ -1,10 +1,10 @@
-def to_numbers(text: str) -> list[int]: # normalised text -> 0..25
-    return [ord(c) - ord("a") for c in text]
+def to_numbers(text: str) -> list[int]: # normalised (uppercase) text -> 0..25
+    return [ord(c) - ord("A") for c in text]
 
 
-def to_letters(nums: list[int]) -> str: # 0..25 -> text
-    letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-               "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+def to_letters(nums: list[int]) -> str: # 0..25 -> uppercase text
+    letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+               "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     return "".join([letters[i] for i in nums])
 
 
@@ -17,7 +17,7 @@ def egcd(a: int, b: int) -> tuple[int, int, int]:
     else:
         gcd, x1, y1 = egcd(b, a % b)
         x, y = y1, x1 - (a // b) * y1
-        gcd = gcd 
+        gcd = gcd
     if gcd < 0:
         gcd, x, y = -gcd, -x, -y
     return gcd, x, y
@@ -32,10 +32,3 @@ def modinv(a: int, m: int) -> int:
 
 def xor_bytes(data: bytes, key: bytes) -> bytes: # key repeats cyclically
     return bytes(b ^ key[i % len(key)] for i, b in enumerate(data))
-
-# Tests
-print(to_numbers("hello"))
-print(to_letters([7, 4, 11, 11, 14]))
-print(egcd(30, 12))
-print(modinv(7, 12))
-print(xor_bytes(b"Hello, World!", b"key"))

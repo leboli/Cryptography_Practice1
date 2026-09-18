@@ -15,10 +15,10 @@ class TestCaesar:
         plaintext = "xyz"
         key = 3
         ciphertext = caesar_encrypt(plaintext, key)
-        assert ciphertext == "abc"
-    
+        assert ciphertext == "ABC"
+
     def test_caesar_decrypt_with_wraparound(self):
-        ciphertext = "abc"
+        ciphertext = "ABC"
         key = 3
         decrypted_text = caesar_decrypt(ciphertext, key)
         assert decrypted_text == "xyz"
@@ -48,4 +48,65 @@ class TestAffine:
         a, b = 13, 5  # 13 is not coprime with 26
         with pytest.raises(ValueError):
             affine_encrypt(plaintext, a, b)
-            
+
+class TestMonoalphabetic:
+    def test_key_from_keyword(self):
+        from cyphers.monoalpha import key_from_keyword
+        
+        keyword = "CRYPTO"
+        expected_key = "CRYPTOABDEFGHIJKLMNQSUVWXZ"
+        generated_key = key_from_keyword(keyword)
+        
+        assert generated_key == expected_key
+
+    def test_given1_encrypt_decrypt(self):
+        from cyphers.monoalpha import encrypt_monoalphabetic, decrypt_monoalphabetic
+        
+        plaintext = "hello"
+        key = "MNBVCXZASDFGHJKLPOIUYTREWQ"
+
+        ciphertext = encrypt_monoalphabetic(plaintext, key)
+        decrypted_text = decrypt_monoalphabetic(ciphertext, key)
+
+        assert ciphertext == "ACGGK"
+        assert decrypted_text == plaintext
+
+    def test_given2_encrypt_decrypt(self):
+        from cyphers.monoalpha import encrypt_monoalphabetic, decrypt_monoalphabetic
+
+        plaintext = "bob"
+        key = "MNBVCXZASDFGHJKLPOIUYTREWQ"
+        
+        ciphertext = encrypt_monoalphabetic(plaintext, key)
+        decrypted_text = decrypt_monoalphabetic(ciphertext, key)
+
+        assert ciphertext == "NKN"
+        assert decrypted_text == plaintext
+
+    def test_monoalphabetic_encrypt_decrypt(self):
+        from cyphers.monoalpha import encrypt_monoalphabetic, decrypt_monoalphabetic, key_from_keyword
+        
+        plaintext = "hello"
+        keyword = "keyword"
+        key = key_from_keyword(keyword)
+        
+        ciphertext = encrypt_monoalphabetic(plaintext, key)
+        decrypted_text = decrypt_monoalphabetic(ciphertext, key)
+        
+        assert decrypted_text == plaintext
+    
+    def test_monoalphabetic_invalid_key_length(self):
+        from cyphers.monoalpha import encrypt_monoalphabetic
+        
+        plaintext = "hello"
+        invalid_key = "SHORTKEY"  # Not 26 characters
+        with pytest.raises(ValueError):
+            encrypt_monoalphabetic(plaintext, invalid_key)
+
+    def test_monoalphabetic_invalid_key_duplicates(self):
+        from cyphers.monoalpha import encrypt_monoalphabetic
+
+        plaintext = "hello"
+        invalid_key = "AABBCCDDEEFFGGHHIIJJKKLLMM"  # Duplicates
+        with pytest.raises(ValueError):
+            encrypt_monoalphabetic(plaintext, invalid_key)
