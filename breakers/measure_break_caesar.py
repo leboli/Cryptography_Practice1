@@ -12,52 +12,7 @@ import random
 
 from cyphers.caesar import encrypt as caesar_encrypt
 from breakers.break_caesar import break_caesar
-
-# English: opening of "Pride and Prejudice" (Jane Austen) + the Gettysburg
-# Address (Lincoln). Public domain.
-ENGLISH_TEXT = """
-It is a truth universally acknowledged, that a single man in possession
-of a good fortune, must be in want of a wife. However little known the
-feelings or views of such a man may be on his first entering a
-neighbourhood, this truth is so well fixed in the minds of the
-surrounding families, that he is considered as the rightful property of
-some one or other of their daughters. My dear Mr Bennet, said his lady
-to him one day, have you heard that Netherfield Park is let at last.
-Mr Bennet replied that he had not. But it is, returned she, for Mrs Long
-has just been here, and she told me all about it. Mr Bennet made no
-answer. Do you not want to know who has taken it, cried his wife
-impatiently. You want to tell me, and I have no objection to hearing it.
-Four score and seven years ago our fathers brought forth on this
-continent a new nation, conceived in liberty, and dedicated to the
-proposition that all men are created equal. Now we are engaged in a
-great civil war, testing whether that nation, or any nation so conceived
-and so dedicated, can long endure. We are met on a great battlefield of
-that war. We have come to dedicate a portion of that field, as a final
-resting place for those who here gave their lives that that nation might
-live. It is altogether fitting and proper that we should do this.
-"""
-
-# Spanish: opening of "Don Quijote de la Mancha" (Cervantes). Accents
-# removed so every letter stays inside the A-Z range that caesar.py shifts.
-# Public domain.
-SPANISH_TEXT = """
-En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha
-mucho tiempo que vivia un hidalgo de los de lanza en astillero, adarga
-antigua, rocin flaco y galgo corredor. Una olla de algo mas vaca que
-carnero, salpicon las mas noches, duelos y quebrantos los sabados,
-lantejas los viernes, algun palomino de anadidura los domingos,
-consumian las tres partes de su hacienda. El resto della concluian sayo
-de velarte, calzas de velludo para las fiestas, con sus pantuflos de lo
-mismo, y los dias de entresemana se honraba con su vellori de lo mas
-fino. Tenia en su casa una ama que pasaba de los cuarenta, y una sobrina
-que no llegaba a los veinte, y un mozo de campo y plaza, que asi
-ensillaba el rocin como tomaba la podadera. En esto, descubrieron
-treinta o cuarenta molinos de viento que hay en aquel campo, y asi como
-don Quijote los vio, dijo a su escudero, la ventura va guiando nuestras
-cosas mejor de lo que acertaramos a desear, porque ves alli, amigo
-Sancho Panza, donde se descubren treinta, o pocos mas, desaforados
-gigantes, con quien pienso hacer batalla.
-"""
+from utils.constants import ENGLISH_TEXT, SPANISH_TEXT
 
 LENGTHS = [20, 30, 40, 60, 100]
 TRIALS = 200

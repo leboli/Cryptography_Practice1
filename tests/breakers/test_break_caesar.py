@@ -1,7 +1,8 @@
 import pytest
 
 from cyphers.caesar import encrypt as caesar_encrypt, decrypt as caesar_decrypt
-from breakers.break_caesar import break_caesar, chi_squared, ENGLISH_FREQUENCY_TABLE, SPANISH_FREQUENCY_TABLE
+from breakers.break_caesar import break_caesar, chi_squared
+from utils.constants import ENGLISH_FREQUENCY_TABLE, SPANISH_FREQUENCY_TABLE
 
 class TestBreakCaesar:
     def test_break_caesar_english(self):

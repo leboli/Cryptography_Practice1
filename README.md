@@ -66,3 +66,13 @@ Recovery rate (200 fragmentos per length, fixed seed):
    With the right table, affine only gets to 100% at 60 letters, versus 30 letters for the Caesar breaker in C1 (twice as much text needed). 
    
    The reason is the size of the key space: Caesar only has to pick the right answer out of 26 shifts, while affine has to pick it out of 312 (a, b) pairs. With a short, noisy fragment, chi-squared scores for the wrong keys are close together, and a bigger haystack of wrong keys means a higher chance that some wrong one scores lower than the true key just by luck. More ciphertext narrows the score gaps enough for the true key to win, so affine simply needs more letters to reach the same reliability.
+
+# Use of LLM assistants
+
+For this poject I used Claude Code for the following:
+
+- Generating tests.
+- Refinig the code for encryption and decryption in order to support text with spaces, punctuation and other characters. 
+- Creating a measure base file for all the algorithms' breakers.
+- Generating english and spanish text.
+- Redacting answers and this file. 

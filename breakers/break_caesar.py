@@ -1,24 +1,5 @@
 from cyphers.caesar import decrypt as caesar_decrypt
-
-# Source: https://es.sttmedia.com/frecuencias-de-letras-ingles
-ENGLISH_FREQUENCY_TABLE = {
-    'A': 0.0834, 'B': 0.0154, 'C': 0.0273, 'D': 0.0414, 'E': 0.1260,
-    'F': 0.0203, 'G': 0.0192, 'H': 0.0611, 'I': 0.0671, 'J': 0.0023,
-    'K': 0.0087, 'L': 0.0424, 'M': 0.0253, 'N': 0.0680, 'O': 0.0770,
-    'P': 0.0166, 'Q': 0.0009, 'R': 0.0568, 'S': 0.0611, 'T': 0.0937,
-    'U': 0.0285, 'V': 0.0106, 'W': 0.0234, 'X': 0.0020, 'Y': 0.0204,
-    'Z': 0.0006
-}
-
-# Source: https://es.sttmedia.com/frecuencias-de-letras-espanol
-SPANISH_FREQUENCY_TABLE = {
-    'A': 0.1216, 'B': 0.0149, 'C': 0.0387, 'D': 0.0467, 'E': 0.1408,
-    'F': 0.0069, 'G': 0.0100, 'H': 0.0118, 'I': 0.0598, 'J': 0.0052,
-    'K': 0.0011, 'L': 0.0524, 'M': 0.0308, 'N': 0.0683, 'Ñ': 0.0017, 
-    'O': 0.0920, 'P': 0.0289, 'Q': 0.0111, 'R': 0.0641, 'S': 0.0720, 
-    'T': 0.0460, 'U': 0.0469, 'V': 0.0105, 'W': 0.0004, 'X': 0.0014, 
-    'Y': 0.0109, 'Z': 0.0047
-}
+from utils.constants import ENGLISH_FREQUENCY_TABLE, SPANISH_FREQUENCY_TABLE
 
 def chi_squared(text: str, table: dict[str, float]) -> float:
     observed_counts = {letter: 0 for letter in table.keys()}

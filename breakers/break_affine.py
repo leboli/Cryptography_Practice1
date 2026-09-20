@@ -1,5 +1,6 @@
-from breakers.break_caesar import chi_squared, ENGLISH_FREQUENCY_TABLE, SPANISH_FREQUENCY_TABLE
+from breakers.break_caesar import chi_squared
 from cyphers.affine import affine_decrypt
+from utils.constants import ENGLISH_FREQUENCY_TABLE, SPANISH_FREQUENCY_TABLE
 
 def break_affine(ciphertext: str, language: str = "en") -> tuple[tuple[int, int], str]:
     best_key = (0, 0)
