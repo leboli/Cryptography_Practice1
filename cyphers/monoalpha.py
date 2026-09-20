@@ -1,4 +1,4 @@
-from utils.basics import to_letters, to_numbers
+ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 def _validate_key(key: str) -> None:
     if len(key) != 26 or len(set(key)) != 26:
@@ -8,18 +8,21 @@ def encrypt_monoalphabetic(plaintext: str, key: str) -> str:
     """Encrypt plaintext using a monoalphabetic substitution cipher with the given key"""
     _validate_key(key)
 
-    positions_key = to_numbers(key)
-    cipher_numbers = [positions_key[p] for p in to_numbers(plaintext.upper())]
-    return to_letters(cipher_numbers)
+    text = plaintext.upper().strip()
+    return "".join(
+        key[ord(c) - ord("A")] if "A" <= c <= "Z" else c
+        for c in text
+    )
 
 
 def decrypt_monoalphabetic(ciphertext: str, key: str) -> str:
     """Decrypt ciphertext using a monoalphabetic substitution cipher with the given key"""
     _validate_key(key)
 
-    positions_key = to_numbers(key)
-    plain_numbers = [positions_key.index(c) for c in to_numbers(ciphertext)]
-    return to_letters(plain_numbers).lower()
+    return "".join(
+        ALPHABET[key.index(c)] if "A" <= c <= "Z" else c
+        for c in ciphertext
+    ).lower()
 
 def key_from_keyword(keyword: str) -> str:
     """Generate a monoalphabetic key from a keyword (keyword letters first, then remaining alphabet)"""

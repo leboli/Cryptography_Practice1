@@ -3,15 +3,18 @@ def encrypt_vigenere(plaintext: str, key: str) -> str:
         raise ValueError("Key must be a non-empty string of alphabetic characters.")
 
     key = key.upper()
-    plaintext = plaintext.upper()
+    plaintext = plaintext.upper().strip()
     ciphertext = ""
+    key_index = 0
 
-    key = key * (len(plaintext) // len(key)) + key[:len(plaintext) % len(key)]
-
-    for pi, ki in zip(plaintext, key):
-        p_index = ord(pi) - ord('A')
-        k_index = ord(ki) - ord('A')
-        ciphertext += chr((p_index + k_index) % 26 + ord('A'))
+    for pi in plaintext:
+        if "A" <= pi <= "Z":
+            p_index = ord(pi) - ord('A')
+            k_index = ord(key[key_index % len(key)]) - ord('A')
+            ciphertext += chr((p_index + k_index) % 26 + ord('A'))
+            key_index += 1
+        else:
+            ciphertext += pi
 
     return ciphertext
 
@@ -22,13 +25,16 @@ def decrypt_vigenere(ciphertext: str, key: str) -> str:
     key = key.upper()
     ciphertext = ciphertext.upper()
     plaintext = ""
+    key_index = 0
 
-    key = key * (len(ciphertext) // len(key)) + key[:len(ciphertext) % len(key)]
-
-    for ci, ki in zip(ciphertext, key):
-        c_index = ord(ci) - ord('A')
-        k_index = ord(ki) - ord('A')
-        plaintext += chr((c_index - k_index + 26) % 26 + ord('A'))
+    for ci in ciphertext:
+        if "A" <= ci <= "Z":
+            c_index = ord(ci) - ord('A')
+            k_index = ord(key[key_index % len(key)]) - ord('A')
+            plaintext += chr((c_index - k_index + 26) % 26 + ord('A'))
+            key_index += 1
+        else:
+            plaintext += ci
 
     return plaintext
 

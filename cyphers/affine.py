@@ -1,18 +1,25 @@
-from utils.basics import egcd, modinv, to_letters, to_numbers
+from utils.basics import egcd, modinv
 
 def affine_encrypt(plaintext: str, a: int, b: int) -> str:
     try:
         modinv(a, 26)
     except ValueError:
         raise ValueError(f"Invalid key: a={a} is not coprime with 26")
-    return to_letters([(a * num + b) % 26 for num in to_numbers(plaintext.upper())])
+    text = plaintext.upper().strip()
+    return "".join(
+        chr((a * (ord(c) - ord("A")) + b) % 26 + ord("A")) if "A" <= c <= "Z" else c
+        for c in text
+    )
 
 def affine_decrypt(ciphertext: str, a: int, b: int) -> str:
     try:
         a_inv = modinv(a, 26)
     except ValueError:
         raise ValueError(f"Invalid key: a={a} is not coprime with 26")
-    return to_letters([((num - b) * a_inv) % 26 for num in to_numbers(ciphertext)]).lower()
+    return "".join(
+        chr(((ord(c) - ord("A") - b) * a_inv) % 26 + ord("A")) if "A" <= c <= "Z" else c
+        for c in ciphertext
+    ).lower()
 
 def valid_keys() -> list[tuple[int, int]]:
     valid_a = [a for a in range(1, 26) if egcd(a, 26)[0] == 1]
