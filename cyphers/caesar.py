@@ -1,12 +1,15 @@
+def shift(text: str, key: int) -> str:
+    result = ""
+    for c in text:
+        if "A" <= c <= "Z":
+            c = chr((ord(c) - ord("A") + key) % 26 + ord("A"))
+        result += c
+    return result
+
+
 def encrypt(plaintext: str, key: int) -> str:
-    text = plaintext.upper().strip()
-    return "".join(
-        chr((ord(c) - ord("A") + key) % 26 + ord("A")) if "A" <= c <= "Z" else c
-        for c in text
-    )
+    return shift(plaintext.upper().strip(), key)
+
 
 def decrypt(ciphertext: str, key: int) -> str:
-    return "".join(
-        chr((ord(c) - ord("A") - key) % 26 + ord("A")) if "A" <= c <= "Z" else c
-        for c in ciphertext
-    ).lower()
+    return shift(ciphertext, -key).lower()

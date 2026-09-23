@@ -18,8 +18,7 @@ SPANISH_FREQUENCY_TABLE = {
     'Y': 0.0109, 'Z': 0.0047
 }
 
-# Top 30 English bigrams. Source: https://en.wikipedia.org/wiki/Bigram
-# (counts drawn from a large English corpus; percentages of all bigrams)
+# Source: https://en.wikipedia.org/wiki/Bigram
 ENGLISH_BIGRAM_FREQUENCY_TABLE = {
     'TH': 0.0271, 'HE': 0.0233, 'IN': 0.0203, 'ER': 0.0178, 'AN': 0.0161,
     'RE': 0.0141, 'ES': 0.0132, 'ON': 0.0132, 'ST': 0.0125, 'NT': 0.0117,
@@ -29,7 +28,7 @@ ENGLISH_BIGRAM_FREQUENCY_TABLE = {
     'HA': 0.0083, 'ET': 0.0076, 'SE': 0.0073, 'OU': 0.0072, 'OF': 0.0071,
 }
 
-# Top 30 English trigrams. Source: https://en.wikipedia.org/wiki/Trigram
+# Source: https://en.wikipedia.org/wiki/Trigram
 ENGLISH_TRIGRAM_FREQUENCY_TABLE = {
     'THE': 0.0181, 'AND': 0.0073, 'ING': 0.0072, 'ENT': 0.0042, 'ION': 0.0042,
     'HER': 0.0036, 'FOR': 0.0034, 'THA': 0.0033, 'NTH': 0.0033, 'INT': 0.0032,
@@ -39,8 +38,7 @@ ENGLISH_TRIGRAM_FREQUENCY_TABLE = {
     'FTH': 0.0021, 'STH': 0.0021, 'OTH': 0.0021, 'RES': 0.0021, 'ONT': 0.0020,
 }
 
-# Spanish bigrams. Source: https://elladodelmal.com / standard letter-frequency
-# analyses of Spanish text (percentages of all bigrams).
+# Source: https://elladodelmal.com
 SPANISH_BIGRAM_FREQUENCY_TABLE = {
     'EN': 0.0301, 'DE': 0.0277, 'ER': 0.0225, 'ES': 0.0220, 'UE': 0.0203,
     'LA': 0.0191, 'RA': 0.0183, 'OS': 0.0173, 'NT': 0.0168, 'TE': 0.0155,
@@ -52,9 +50,7 @@ SPANISH_BIGRAM_FREQUENCY_TABLE = {
     'IN': 0.0077,
 }
 
-# Spanish trigrams. Same source family as the bigrams above. Accented
-# letters are normalised away (e.g. "ION" instead of "ION" with an accent)
-# to stay inside the A-Z (+ N with tilde) range the rest of this project uses.
+# Same source as the bigrams, without accents.
 SPANISH_TRIGRAM_FREQUENCY_TABLE = {
     'QUE': 0.0166, 'ENT': 0.0138, 'NTE': 0.0107, 'CON': 0.0085, 'EST': 0.0083,
     'ADO': 0.0071, 'PAR': 0.0069, 'LOS': 0.0067, 'ERA': 0.0064, 'IEN': 0.0061,
@@ -65,8 +61,7 @@ SPANISH_TRIGRAM_FREQUENCY_TABLE = {
     'DES': 0.0033, 'VER': 0.0033, 'IDO': 0.0030, 'ADA': 0.0030,
 }
 
-# English: opening of "Pride and Prejudice" (Jane Austen) + the Gettysburg
-# Address (Lincoln). Public domain.
+# Pride and Prejudice (start) + Gettysburg Address
 ENGLISH_TEXT = """
 It is a truth universally acknowledged, that a single man in possession
 of a good fortune, must be in want of a wife. However little known the
@@ -89,9 +84,7 @@ resting place for those who here gave their lives that that nation might
 live. It is altogether fitting and proper that we should do this.
 """
 
-# Spanish: opening of "Don Quijote de la Mancha" (Cervantes). Accents
-# removed so every letter stays inside the A-Z range that caesar.py shifts.
-# Public domain.
+# Don Quijote (start), without accents
 SPANISH_TEXT = """
 En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha
 mucho tiempo que vivia un hidalgo de los de lanza en astillero, adarga

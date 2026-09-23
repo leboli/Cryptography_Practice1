@@ -1,13 +1,7 @@
-"""
-Part C1 - measurement task for the Caesar breaker.
-
-For each fragment length, take 200 random fragments of a reference text,
-encrypt each with a random key, run break_caesar on it, and see how often
-the recovered key matches the real one.
-
-Run with:
-    py -m breakers.measure_break_caesar
-"""
+# C1 - measurement for the Caesar breaker.
+# For each length: 200 random fragments of a reference text, encrypted with a
+# random key, and we count how often break_caesar gets the key back.
+# Run with: py -m breakers.measure_break_caesar
 import random
 
 from cyphers.caesar import encrypt as caesar_encrypt
@@ -17,25 +11,22 @@ from utils.constants import ENGLISH_TEXT, SPANISH_TEXT
 LENGTHS = [20, 30, 40, 60, 100]
 TRIALS = 200
 
-random.seed(42)  # reproducible results
+random.seed(42)
 
 
 def random_fragment(text: str, length: int) -> str:
-    """Pick a random substring of text that contains exactly "length" letters."""
-    letter_positions = [i for i, c in enumerate(text) if c.isalpha()]
-    start = random.randrange(len(letter_positions) - length + 1)
-    first = letter_positions[start]
-    last = letter_positions[start + length - 1]
-    return text[first:last + 1]
+    # random piece of text with exactly `length` letters
+    letters = [i for i, c in enumerate(text) if c.isalpha()]
+    start = random.randrange(len(letters) - length + 1)
+    return text[letters[start]:letters[start + length - 1] + 1]
 
 
-def recovery_rate(text: str, length: int, table: str) -> float:
+def recovery_rate(text: str, length: int, language: str) -> float:
     correct = 0
     for _ in range(TRIALS):
         fragment = random_fragment(text, length)
         key = random.randrange(26)
-        ciphertext = caesar_encrypt(fragment, key)
-        found_key, _ = break_caesar(ciphertext, language=table)
+        found_key, _ = break_caesar(caesar_encrypt(fragment, key), language)
         if found_key == key:
             correct += 1
     return correct / TRIALS
@@ -44,11 +35,11 @@ def recovery_rate(text: str, length: int, table: str) -> float:
 if __name__ == "__main__":
     print(f"{'len':>4} {'EN/EN':>8} {'EN/ES':>8} {'ES/ES':>8} {'ES/EN':>8}")
     for length in LENGTHS:
-        en_en = recovery_rate(ENGLISH_TEXT, length, "en")
-        en_es = recovery_rate(ENGLISH_TEXT, length, "es")
-        es_es = recovery_rate(SPANISH_TEXT, length, "es")
-        es_en = recovery_rate(SPANISH_TEXT, length, "en")
-        print(f"{length:>4} {en_en:>8.1%} {en_es:>8.1%} {es_es:>8.1%} {es_en:>8.1%}")
+        row = [recovery_rate(ENGLISH_TEXT, length, "en"),
+               recovery_rate(ENGLISH_TEXT, length, "es"),
+               recovery_rate(SPANISH_TEXT, length, "es"),
+               recovery_rate(SPANISH_TEXT, length, "en")]
+        print(f"{length:>4} " + " ".join(f"{r:>8.1%}" for r in row))
 
 # Answers
 #

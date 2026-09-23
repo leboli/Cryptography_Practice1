@@ -1,48 +1,28 @@
-"""
-Part C3 - measurement task for the Vigenere breaker.
-
-For each (key length, ciphertext length) pair, take 100 random fragments of
-a reference text, encrypt each with a random key of that length, run
-break_vigenere on it, and see how often the recovered key matches the real
-one.
-
-Run with:
-    py -m breakers.measure_break_vigenere
-"""
+# C3 - measurement for the Vigenere breaker.
+# For each key length m and text length: 100 random fragments encrypted with a
+# random key of length m, and we count how often break_vigenere gets it back.
+# Run with: py -m breakers.measure_break_vigenere
 import random
 import string
 
 from cyphers.vigenere import encrypt_vigenere
 from breakers.break_vigenere import break_vigenere
+from breakers.measure_break_caesar import random_fragment
 from utils.constants import ENGLISH_TEXT, SPANISH_TEXT
 
 KEY_LENGTHS = [3, 5, 7]
 LENGTHS = [60, 120, 200, 300]
 TRIALS = 100
 
-random.seed(42)  
+random.seed(42)
 
 
-def random_fragment(text: str, length: int) -> str:
-    """Pick a random substring of text that contains exactly "length" letters."""
-    letter_positions = [i for i, c in enumerate(text) if c.isalpha()]
-    start = random.randrange(len(letter_positions) - length + 1)
-    first = letter_positions[start]
-    last = letter_positions[start + length - 1]
-    return text[first:last + 1]
-
-
-def random_key(m: int) -> str:
-    return ''.join(random.choice(string.ascii_uppercase) for _ in range(m))
-
-
-def recovery_rate(text: str, length: int, m: int, table: str) -> float:
+def recovery_rate(text: str, length: int, m: int, language: str) -> float:
     correct = 0
     for _ in range(TRIALS):
         fragment = random_fragment(text, length)
-        key = random_key(m)
-        ciphertext = encrypt_vigenere(fragment, key)
-        found_key, _ = break_vigenere(ciphertext, m, language=table)
+        key = "".join(random.choice(string.ascii_uppercase) for _ in range(m))
+        found_key, _ = break_vigenere(encrypt_vigenere(fragment, key), m, language)
         if found_key == key:
             correct += 1
     return correct / TRIALS
