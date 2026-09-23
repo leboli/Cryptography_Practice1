@@ -18,6 +18,53 @@ SPANISH_FREQUENCY_TABLE = {
     'Y': 0.0109, 'Z': 0.0047
 }
 
+# Top 30 English bigrams. Source: https://en.wikipedia.org/wiki/Bigram
+# (counts drawn from a large English corpus; percentages of all bigrams)
+ENGLISH_BIGRAM_FREQUENCY_TABLE = {
+    'TH': 0.0271, 'HE': 0.0233, 'IN': 0.0203, 'ER': 0.0178, 'AN': 0.0161,
+    'RE': 0.0141, 'ES': 0.0132, 'ON': 0.0132, 'ST': 0.0125, 'NT': 0.0117,
+    'EN': 0.0113, 'AT': 0.0112, 'ED': 0.0108, 'ND': 0.0107, 'TO': 0.0107,
+    'OR': 0.0106, 'EA': 0.0100, 'TI': 0.0099, 'AR': 0.0098, 'TE': 0.0098,
+    'NG': 0.0089, 'AL': 0.0088, 'IT': 0.0088, 'AS': 0.0087, 'IS': 0.0086,
+    'HA': 0.0083, 'ET': 0.0076, 'SE': 0.0073, 'OU': 0.0072, 'OF': 0.0071,
+}
+
+# Top 30 English trigrams. Source: https://en.wikipedia.org/wiki/Trigram
+ENGLISH_TRIGRAM_FREQUENCY_TABLE = {
+    'THE': 0.0181, 'AND': 0.0073, 'ING': 0.0072, 'ENT': 0.0042, 'ION': 0.0042,
+    'HER': 0.0036, 'FOR': 0.0034, 'THA': 0.0033, 'NTH': 0.0033, 'INT': 0.0032,
+    'ERE': 0.0031, 'TIO': 0.0031, 'TER': 0.0030, 'EST': 0.0028, 'ERS': 0.0028,
+    'ATI': 0.0026, 'HAT': 0.0026, 'ATE': 0.0025, 'ALL': 0.0025, 'ETH': 0.0024,
+    'HES': 0.0024, 'VER': 0.0024, 'HIS': 0.0024, 'OFT': 0.0022, 'ITH': 0.0021,
+    'FTH': 0.0021, 'STH': 0.0021, 'OTH': 0.0021, 'RES': 0.0021, 'ONT': 0.0020,
+}
+
+# Spanish bigrams. Source: https://elladodelmal.com / standard letter-frequency
+# analyses of Spanish text (percentages of all bigrams).
+SPANISH_BIGRAM_FREQUENCY_TABLE = {
+    'EN': 0.0301, 'DE': 0.0277, 'ER': 0.0225, 'ES': 0.0220, 'UE': 0.0203,
+    'LA': 0.0191, 'RA': 0.0183, 'OS': 0.0173, 'NT': 0.0168, 'TE': 0.0155,
+    'AR': 0.0154, 'QU': 0.0144, 'EL': 0.0140, 'TA': 0.0138, 'DO': 0.0135,
+    'CO': 0.0131, 'RE': 0.0129, 'AS': 0.0128, 'ON': 0.0115, 'AN': 0.0115,
+    'TO': 0.0111, 'LO': 0.0110, 'ST': 0.0109, 'UN': 0.0107, 'OR': 0.0104,
+    'AD': 0.0102, 'IE': 0.0101, 'SE': 0.0099, 'CI': 0.0098, 'AL': 0.0091,
+    'PA': 0.0088, 'NA': 0.0088, 'RO': 0.0085, 'NO': 0.0082, 'ME': 0.0080,
+    'IN': 0.0077,
+}
+
+# Spanish trigrams. Same source family as the bigrams above. Accented
+# letters are normalised away (e.g. "ION" instead of "ION" with an accent)
+# to stay inside the A-Z (+ N with tilde) range the rest of this project uses.
+SPANISH_TRIGRAM_FREQUENCY_TABLE = {
+    'QUE': 0.0166, 'ENT': 0.0138, 'NTE': 0.0107, 'CON': 0.0085, 'EST': 0.0083,
+    'ADO': 0.0071, 'PAR': 0.0069, 'LOS': 0.0067, 'ERA': 0.0064, 'IEN': 0.0061,
+    'MEN': 0.0060, 'PER': 0.0053, 'STA': 0.0050, 'ARA': 0.0050, 'POR': 0.0047,
+    'UNA': 0.0047, 'ION': 0.0046, 'ANT': 0.0045, 'TRA': 0.0045, 'ERO': 0.0044,
+    'NTO': 0.0044, 'CIO': 0.0039, 'ACI': 0.0038, 'LAS': 0.0037, 'COM': 0.0037,
+    'STE': 0.0036, 'RES': 0.0035, 'IER': 0.0034, 'TEN': 0.0034, 'DOS': 0.0033,
+    'DES': 0.0033, 'VER': 0.0033, 'IDO': 0.0030, 'ADA': 0.0030,
+}
+
 # English: opening of "Pride and Prejudice" (Jane Austen) + the Gettysburg
 # Address (Lincoln). Public domain.
 ENGLISH_TEXT = """

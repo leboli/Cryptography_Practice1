@@ -1,12 +1,14 @@
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-def _validate_key(key: str) -> None:
-    if len(key) != 26 or len(set(key)) != 26:
+def _validate_key(key: str) -> str:
+    key = key.upper()
+    if len(key) != 26 or len(set(key)) != 26 or not key.isalpha():
         raise ValueError("Key must be a permutation of the alphabet (26 unique letters)")
+    return key
 
 def encrypt_monoalphabetic(plaintext: str, key: str) -> str:
     """Encrypt plaintext using a monoalphabetic substitution cipher with the given key"""
-    _validate_key(key)
+    key = _validate_key(key)
 
     text = plaintext.upper().strip()
     return "".join(
@@ -17,11 +19,11 @@ def encrypt_monoalphabetic(plaintext: str, key: str) -> str:
 
 def decrypt_monoalphabetic(ciphertext: str, key: str) -> str:
     """Decrypt ciphertext using a monoalphabetic substitution cipher with the given key"""
-    _validate_key(key)
+    key = _validate_key(key)
 
     return "".join(
         ALPHABET[key.index(c)] if "A" <= c <= "Z" else c
-        for c in ciphertext
+        for c in ciphertext.upper()
     ).lower()
 
 def key_from_keyword(keyword: str) -> str:

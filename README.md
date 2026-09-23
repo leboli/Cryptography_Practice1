@@ -75,7 +75,7 @@ Run the mesurements:
 py -m breakers.measure_break_vigenere
 ```
 
-Recovery rate (100 fragmentos per combination, fixed seed), each own-language text with its own table:
+Recovery rate (100 fragments per combination, fixed seed), each own-language text with its own table:
 
 **m = 3**
 
@@ -104,7 +104,7 @@ Recovery rate (100 fragmentos per combination, fixed seed), each own-language te
 | 200 | 95.0% | 100%  | 28.6       |
 | 300 | 100%  | 100%  | 42.9       |
 
-(`~coset len` = len / m, the average number of letters each individual Caesar sub-problem gets)
+(`~coset len` = the average number of letters each individual Caesar sub-problem gets)
 
 1) **What actually governs whether this works: total ciphertext length, or something else?**
 
@@ -113,6 +113,38 @@ Recovery rate (100 fragmentos per combination, fixed seed), each own-language te
 2) **Why does a longer key make Vigenere stronger even though the cipher itself hasn't changed?**
 
    Breaking Vigenere with a known key length is just running the C1 Caesar attack m times, once per coset, and each coset only gets roughly 1/m of the ciphertext's letters. Chi-squared needs enough letters to tell the true shift's frequency profile apart from the other 25 by more than sampling noise; the same weakness reflected in C1. A longer key doesn't touch how any individual position is encrypted (it's still a Caesar shift), but it thins out how much evidence the attacker gets per key position, since the same ciphertext now has to cover more independent shifts. So the extra strength isn't in the encryption step, it's that a longer key starves each subproblem of the sample size cryptanalysis needs. Given enough ciphertext this advantage disappears (as the 300-length column shows, everything reaches 100% eventually), so "longer key = stronger" really means "stronger per unit of ciphertext available to the attacker."
+
+## C4 - Frequency assistant for monoalphabetic substitution
+
+Run it on the given cryptogram (and check the mapping against the real key):
+
+```
+py -m breakers.measure_assist
+```
+
+The cryptogram (110 letters, 22 distinct):
+
+```
+QATNT YSMHQ XJOCY HKATM FSNQI TUTMP TKTIP JIDTT KHIGQ ATCEG
+JMHQA FNTYM TQRTY CSNTJ IEXQA TDTXY CIRTY ACIGT PVATI HQHNY
+JFKMJ FHNTP
+```
+
+It decodes to a paraphrase of Kerckhoffs's principle: *"The security of a cipher must never depend on keeping the algorithm secret, because only the key can be changed when it is compromised."*
+
+1) **How many of the 22 distinct letters does the suggested mapping get right?**
+
+   3 out of 22 (T→E, U→V, X→Y).
+
+2) **What's the single most useful line in the whole report for a human solver?**
+
+   The repeated trigram line: `QAT: count=3, positions=[1, 45, 74]`. A trigram repeating 3 times in 110 letters, right at the start of the text, is almost certainly "THE", and that guess doesn't depend on this short sample's letters matching the language's long-run frequencies the way rank alignment does. It pins down 3 letters (Q, A, T) at once, and the top bigrams `AT` and `QA` immediately confirm it as "HE" and "TH".
+
+3) **Why does rank alignment alone not solve the cipher, and what does?**
+
+   Rank alignment assumes this one 110-letter sample's letter frequencies fall in the same order as the language's long-run average. They don't, T is the cipher's most frequent letter at 18.2%, well above English E's usual 12.6%, and several letters tie or sit close enough that sampling noise reorders them. Matching cipher-rank-i to language-rank-i is therefore often wrong, which is exactly why only 3 of 22 letters land correctly.
+
+   What actually solves it is what a human solver does: treat the frequency ranking as a rough starting point only, then confirm or correct each letter with structural evidence the ranking ignores, repeated trigrams/bigrams matched to common words ("THE", "HE", "TH"), doubled letters, and propagating each confirmed letter into the other words it appears in until the partially-decoded text starts reading as real English.
 
 # Use of LLM assistants
 
@@ -123,4 +155,7 @@ For this poject I used Claude Code for the following:
 - Fixing a bug in the Vigenere coset reassembly and a mismatch between how the key index advances on encryption/decryption vs how cosets were split.
 - Creating a measure base file for all the algorithms' breakers.
 - Generating english and spanish text.
+- Fixing a bug in the monoalphabetic cipher where decrypting lowercase/mixed-case ciphertext (or using a lowercase key) silently returned it unchanged instead of decrypting it.
+- Building the C4 frequency assistant (`assist.py`) and its tests.
+- Recovering the real key for the C4 cryptogram (used only in `measure_assist.py`, to grade the suggested mapping, never inside `assist.py` itself) with a quadgram-based hill-climbing/simulated-annealing search against public-domain English text, to know the ground truth for the report-task questions.
 - Redacting answers and this file. 
