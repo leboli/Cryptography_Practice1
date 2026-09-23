@@ -67,12 +67,60 @@ Recovery rate (200 fragmentos per length, fixed seed):
    
    The reason is the size of the key space: Caesar only has to pick the right answer out of 26 shifts, while affine has to pick it out of 312 (a, b) pairs. With a short, noisy fragment, chi-squared scores for the wrong keys are close together, and a bigger haystack of wrong keys means a higher chance that some wrong one scores lower than the true key just by luck. More ciphertext narrows the score gaps enough for the true key to win, so affine simply needs more letters to reach the same reliability.
 
+## C3 - Vigenere breaker
+
+Run the mesurements:
+
+```
+py -m breakers.measure_break_vigenere
+```
+
+Recovery rate (100 fragmentos per combination, fixed seed), each own-language text with its own table:
+
+**m = 3**
+
+| len | EN    | ES    | ~coset len |
+|-----|-------|-------|------------|
+| 60  | 89.0% | 91.0% | 20.0       |
+| 120 | 100%  | 100%  | 40.0       |
+| 200 | 100%  | 100%  | 66.7       |
+| 300 | 100%  | 100%  | 100.0      |
+
+**m = 5**
+
+| len | EN    | ES    | ~coset len |
+|-----|-------|-------|------------|
+| 60  | 49.0% | 55.0% | 12.0       |
+| 120 | 93.0% | 96.0% | 24.0       |
+| 200 | 100%  | 100%  | 40.0       |
+| 300 | 100%  | 100%  | 60.0       |
+
+**m = 7**
+
+| len | EN    | ES    | ~coset len |
+|-----|-------|-------|------------|
+| 60  | 13.0% | 17.0% | 8.6        |
+| 120 | 72.0% | 77.0% | 17.1       |
+| 200 | 95.0% | 100%  | 28.6       |
+| 300 | 100%  | 100%  | 42.9       |
+
+(`~coset len` = len / m, the average number of letters each individual Caesar sub-problem gets)
+
+1) **What actually governs whether this works: total ciphertext length, or something else?**
+
+   It's the coset length (len / m), not the total length. Look at len=60 with m=3 (coset len 20, 89-91% recovery) versus len=120 with m=7 (coset len 17.1, 72-77% recovery): the second one has *twice* the total ciphertext but does worse, because it's split across more cosets. Meanwhile len=200,m=7 (coset len 28.6, 95-100%) beats len=60,m=3 (coset len 20, 89-91%) despite having a longer key, simply because each coset still gets more letters. Rows with similar coset lengths land at similar recovery rates regardless of m or total length, which is the giveaway that coset length is the real variable, matching the same length-vs-reliability curve I saw for plain Caesar in C1.
+
+2) **Why does a longer key make Vigenere stronger even though the cipher itself hasn't changed?**
+
+   Breaking Vigenere with a known key length is just running the C1 Caesar attack m times, once per coset, and each coset only gets roughly 1/m of the ciphertext's letters. Chi-squared needs enough letters to tell the true shift's frequency profile apart from the other 25 by more than sampling noise; the same weakness reflected in C1. A longer key doesn't touch how any individual position is encrypted (it's still a Caesar shift), but it thins out how much evidence the attacker gets per key position, since the same ciphertext now has to cover more independent shifts. So the extra strength isn't in the encryption step, it's that a longer key starves each subproblem of the sample size cryptanalysis needs. Given enough ciphertext this advantage disappears (as the 300-length column shows, everything reaches 100% eventually), so "longer key = stronger" really means "stronger per unit of ciphertext available to the attacker."
+
 # Use of LLM assistants
 
 For this poject I used Claude Code for the following:
 
 - Generating tests.
 - Refinig the code for encryption and decryption in order to support text with spaces, punctuation and other characters. 
+- Fixing a bug in the Vigenere coset reassembly and a mismatch between how the key index advances on encryption/decryption vs how cosets were split.
 - Creating a measure base file for all the algorithms' breakers.
 - Generating english and spanish text.
 - Redacting answers and this file. 

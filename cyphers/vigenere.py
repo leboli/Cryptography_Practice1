@@ -39,4 +39,5 @@ def decrypt_vigenere(ciphertext: str, key: str) -> str:
     return plaintext
 
 def cosets_vigenere(ciphertext: str, m: int) -> list[str]:
-    return [ciphertext[i::m] for i in range(m)]
+    letters = [ch for ch in ciphertext.upper() if "A" <= ch <= "Z"]
+    return [''.join(letters[i::m]) for i in range(m)]
