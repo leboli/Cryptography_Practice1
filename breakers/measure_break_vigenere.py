@@ -3,11 +3,11 @@
 # random key of length m, and we count how often break_vigenere gets it back.
 # Run with: py -m breakers.measure_break_vigenere
 import random
-import string
 
-from cyphers.vigenere import encrypt_vigenere
+from cyphers.vigenere import encrypt as vigenere_encrypt
 from breakers.break_vigenere import break_vigenere
 from breakers.measure_break_caesar import random_fragment
+from utils.basics import ALPHABET
 from utils.constants import ENGLISH_TEXT, SPANISH_TEXT
 
 KEY_LENGTHS = [3, 5, 7]
@@ -21,8 +21,8 @@ def recovery_rate(text: str, length: int, m: int, language: str) -> float:
     correct = 0
     for _ in range(TRIALS):
         fragment = random_fragment(text, length)
-        key = "".join(random.choice(string.ascii_uppercase) for _ in range(m))
-        found_key, _ = break_vigenere(encrypt_vigenere(fragment, key), m, language)
+        key = "".join(random.choice(ALPHABET) for _ in range(m))
+        found_key, _ = break_vigenere(vigenere_encrypt(fragment, key), m, language)
         if found_key == key:
             correct += 1
     return correct / TRIALS

@@ -1,60 +1,80 @@
 import pytest
 
-from cyphers.monoalpha import key_from_keyword
-from cyphers.monoalpha import encrypt_monoalphabetic, decrypt_monoalphabetic
+from cyphers.monoalpha import encrypt, decrypt, key_from_keyword
+from utils.basics import normalise
 
-class TestMonoalphabetic:
+KEY = "MNBVCXZASDFGHJKLPOIUYTREWQ"
+TEXT = "Cryptography is the only branch of computing designed against an intelligent opponent!"
+
+
+class TestCheckValues:
     def test_key_from_keyword(self):
-        
-        keyword = "CRYPTO"
-        expected_key = "CRYPTOABDEFGHIJKLMNQSUVWXZ"
-        generated_key = key_from_keyword(keyword)
-        
-        assert generated_key == expected_key
+        assert key_from_keyword("CRYPTO") == "CRYPTOABDEFGHIJKLMNQSUVWXZ"
 
-    def test_given1_encrypt_decrypt(self):
-        
-        plaintext = "hello"
-        key = "MNBVCXZASDFGHJKLPOIUYTREWQ"
+    def test_encrypt_values(self):
+        assert encrypt("HELLO", KEY) == "ACGGK"
+        assert encrypt("BOB", KEY) == "NKN"
 
-        ciphertext = encrypt_monoalphabetic(plaintext, key)
-        decrypted_text = decrypt_monoalphabetic(ciphertext, key)
+    def test_decrypt_values(self):
+        assert decrypt("ACGGK", KEY) == "HELLO"
+        assert decrypt("NKN", KEY) == "BOB"
 
-        assert ciphertext == "ACGGK"
-        assert decrypted_text == plaintext
 
-    def test_given2_encrypt_decrypt(self):
+class TestKeyFromKeyword:
+    def test_repeated_letters_used_once(self):
+        assert key_from_keyword("BALLOON") == "BALONCDEFGHIJKMPQRSTUVWXYZ"
 
-        plaintext = "bob"
-        key = "MNBVCXZASDFGHJKLPOIUYTREWQ"
-        
-        ciphertext = encrypt_monoalphabetic(plaintext, key)
-        decrypted_text = decrypt_monoalphabetic(ciphertext, key)
+    def test_lowercase_and_spaces(self):
+        assert key_from_keyword("crypto 2026") == key_from_keyword("CRYPTO")
 
-        assert ciphertext == "NKN"
-        assert decrypted_text == plaintext
+    def test_result_is_always_a_permutation(self):
+        for keyword in ["A", "ZEBRA", "KEYWORD", "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG"]:
+            assert sorted(key_from_keyword(keyword)) == list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-    def test_monoalphabetic_correctness(self):
-        
-        plaintext = "hello"
-        keyword = "keyword"
-        key = key_from_keyword(keyword)
-        
-        ciphertext = encrypt_monoalphabetic(plaintext, key)
-        decrypted_text = decrypt_monoalphabetic(ciphertext, key)
-        
-        assert decrypted_text == plaintext
-    
-    def test_monoalphabetic_invalid_key_length(self):
-        
-        plaintext = "hello"
-        invalid_key = "SHORTKEY"  # Not 26 characters
+    @pytest.mark.parametrize("keyword", ["", "123", "!!!"])
+    def test_rejects_keyword_without_letters(self, keyword):
         with pytest.raises(ValueError):
-            encrypt_monoalphabetic(plaintext, invalid_key)
+            key_from_keyword(keyword)
 
-    def test_monoalphabetic_invalid_key_duplicates(self):
 
-        plaintext = "hello"
-        invalid_key = "AABBCCDDEEFFGGHHIIJJKKLLMM"  # Duplicates
+class TestRoundTrip:
+    @pytest.mark.parametrize("key", [
+        KEY,
+        KEY.lower(),
+        key_from_keyword("CRYPTO"),
+        key_from_keyword("KEYWORD"),
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    ])
+    def test_round_trip(self, key):
+        assert decrypt(encrypt(TEXT, key), key) == normalise(TEXT)
+
+
+class TestInvalidKeys:
+    @pytest.mark.parametrize("key", [
+        "",                                     # empty
+        "SHORTKEY",                             # too short
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZA",          # too long
+        "AABBCCDDEEFFGGHHIIJJKKLLMM",           # duplicates
+        "ABCDEFGHIJKLMNOPQRSTUVWXY1",           # digit
+        "ABCDEFGHIJKLMNOPQRSTUVWXY ",           # space
+        "ÑBCDEFGHIJKLMNOPQRSTUVWXYZ",           # letter outside A-Z
+    ])
+    def test_rejects_non_permutation(self, key):
         with pytest.raises(ValueError):
-            encrypt_monoalphabetic(plaintext, invalid_key)
+            encrypt("hello", key)
+        with pytest.raises(ValueError):
+            decrypt("HELLO", key)
+
+
+class TestEdgeCases:
+    def test_empty_input(self):
+        assert encrypt("", KEY) == ""
+        assert decrypt("", KEY) == ""
+
+    def test_single_character(self):
+        assert encrypt("a", KEY) == "M"
+        assert decrypt("M", KEY) == "A"
+
+    def test_no_letters(self):
+        assert encrypt("123 !?", KEY) == ""
+        assert decrypt("123 !?", KEY) == ""

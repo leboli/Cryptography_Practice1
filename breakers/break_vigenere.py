@@ -1,11 +1,10 @@
-from cyphers.vigenere import cosets_vigenere, decrypt_vigenere
+from cyphers.vigenere import cosets, decrypt as vigenere_decrypt
 from breakers.break_caesar import break_caesar
+from utils.basics import to_letters
 
 
 def break_vigenere(ciphertext: str, m: int, language: str = "en") -> tuple[str, str]:
     # m is the key length. Each coset is just a Caesar cipher, so break them one by one.
-    key = ""
-    for coset in cosets_vigenere(ciphertext, m):
-        shift, _ = break_caesar(coset, language)
-        key += chr(shift + ord("A"))
-    return key, decrypt_vigenere(ciphertext, key).lower()
+    shifts = [break_caesar(coset, language)[0] for coset in cosets(ciphertext, m)]
+    key = to_letters(shifts)
+    return key, vigenere_decrypt(ciphertext, key)

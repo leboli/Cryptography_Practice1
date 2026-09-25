@@ -4,14 +4,13 @@
 # Run with: py -m breakers.measure_break_affine
 import random
 
-from cyphers.affine import affine_encrypt
+from cyphers.affine import encrypt as affine_encrypt, valid_keys
 from breakers.break_affine import break_affine
 from breakers.measure_break_caesar import random_fragment
 from utils.constants import ENGLISH_TEXT, SPANISH_TEXT
 
 LENGTHS = [20, 30, 40, 60, 100]
 TRIALS = 200
-POSSIBLE_A = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]
 
 random.seed(42)
 
@@ -20,8 +19,7 @@ def recovery_rate(text: str, length: int, language: str) -> float:
     correct = 0
     for _ in range(TRIALS):
         fragment = random_fragment(text, length)
-        a = random.choice(POSSIBLE_A)
-        b = random.randrange(26)
+        a, b = random.choice(valid_keys())
         found_key, _ = break_affine(affine_encrypt(fragment, a, b), language)
         if found_key == (a, b):
             correct += 1

@@ -1,28 +1,37 @@
 
 # Tests
 
-From the root run: 
+From the root run (`pytest.ini` puts the project root on the import path, so both work):
 
 ```
-py -m pytest tests/ -v
+py -m pytest -v
+pytest -v
 ```
+
+Every cipher test file follows the same structure: the check values published in the handout, round-trip `decrypt(encrypt(m, k), k) == normalised m`, rejection of invalid keys, and edge cases (empty input, a single character, input with no letters, and for Vigenere input shorter than the key). Each breaker is tested on 20 generated ciphertexts per language at the length where the measurements below say it is reliable (Caesar 30 letters, affine 60, Vigenere ~40 letters per coset).
+
+# Deviations from the handout
+
+- **Folder layout.** The modules are grouped in folders instead of sitting at the root: `utils/basics.py`, `cyphers/{caesar,affine,monoalpha,vigenere}.py`, `breakers/{break_caesar,break_affine,break_vigenere,assist}.py`. Function names and signatures are exactly the ones in the handout.
+- **Accents are folded, not dropped.** Input is normalised to uppercase A-Z as required, but accented letters are first reduced to their base letter (`É -> E`, `Ñ -> N`) instead of being removed, so Spanish text keeps all its letters. Because of this, the frequency of Ñ is added to N in the Spanish table.
+- **Unknown languages are rejected.** Any `language` other than `"en"` or `"es"` raises `ValueError`.
 
 # C - Breakers
 
 ## C1 - Caesar breaker
 
-Run the mesurements:
+Run the measurements:
 
 ```
 py -m breakers.measure_break_caesar
 ```
 
-Recovery rate (200 fragmentos per length, fixed seed):
+Recovery rate (200 fragments per length, fixed seed):
 
 | len | EN/EN | EN/ES | ES/ES | ES/EN |
 |-----|-------|-------|-------|-------|
 | 20  | 95.0% | 65.0% | 99.0% | 57.0% |
-| 30  | 100%  | 63.0% | 100%  | 77.5% |
+| 30  | 100%  | 62.5% | 100%  | 77.5% |
 | 40  | 100%  | 68.5% | 100%  | 83.0% |
 | 60  | 100%  | 68.5% | 100%  | 93.5% |
 | 100 | 100%  | 65.5% | 100%  | 100%  |
@@ -35,25 +44,25 @@ Recovery rate (200 fragmentos per length, fixed seed):
 
 2) **How much does the wrong language table cost you?**
 
-   It depends on which table is wrong. Using the English table on Spanish text starts off costly for short texts (35% worse at 20 letters) but that gap almost disappears by 100 letters, so more ciphertext fixes it. Using the Spanish table on English text is worse and doesn't get better with length, it stays wrong a lot of the time even at 100 letters. The Spanish table's letter shape (extra letter, higher A/E weight) just doesn't match English well, so guessing the wrong table isn't equally bad in both directions.
+   It depends on which table is wrong. Using the English table on Spanish text starts off costly for short texts (35% worse at 20 letters) but that gap almost disappears by 100 letters, so more ciphertext fixes it. Using the Spanish table on English text is worse and doesn't get better with length, it stays wrong a lot of the time even at 100 letters. Looking at the failures at 100 letters, about two thirds of them pick the key off by exactly 13: under that wrong shift the common English letters N, R and H land on A, E and U, which are exactly the letters Spanish uses most, so the wrong decryption genuinely looks more Spanish than the right one. That is a systematic error, not noise, which is why more ciphertext doesn't fix it, and why guessing the wrong table isn't equally bad in both directions.
 
 ## C2 - Affine breaker
 
-Run the mesurements:
+Run the measurements:
 
 ```
 py -m breakers.measure_break_affine
 ```
 
-Recovery rate (200 fragmentos per length, fixed seed):
+Recovery rate (200 fragments per length, fixed seed):
 
 | len | EN/EN | EN/ES | ES/ES | ES/EN |
 |-----|-------|-------|-------|-------|
-| 20  | 83.5% | 34.5% | 89.0% | 42.5% |
-| 30  | 96.0% | 38.5% | 96.5% | 40.0% |
-| 40  | 98.0% | 38.0% | 99.5% | 65.0% |
-| 60  | 100%  | 47.5% | 100%  | 66.0% |
-| 100 | 100%  | 42.5% | 100%  | 86.0% |
+| 20  | 84.0% | 34.0% | 89.0% | 44.0% |
+| 30  | 96.5% | 35.5% | 99.5% | 49.5% |
+| 40  | 99.5% | 33.0% | 99.5% | 61.0% |
+| 60  | 100%  | 40.0% | 100%  | 68.0% |
+| 100 | 100%  | 41.0% | 100%  | 86.5% |
 
 (EN/EN = english text with english table, EN/ES = english text with spanish table, ES/ES = spanish text with spanish table, ES/EN = spanish text with english table)
 
@@ -69,7 +78,7 @@ Recovery rate (200 fragmentos per length, fixed seed):
 
 ## C3 - Vigenere breaker
 
-Run the mesurements:
+Run the measurements:
 
 ```
 py -m breakers.measure_break_vigenere
@@ -148,14 +157,15 @@ It decodes to a paraphrase of Kerckhoffs's principle: *"The security of a cipher
 
 # Use of LLM assistants
 
-For this poject I used Claude Code for the following:
+For this project I used Claude Code for the following:
 
 - Generating tests.
-- Refinig the code for encryption and decryption in order to support text with spaces, punctuation and other characters. 
+- Refining the code for encryption and decryption in order to support text with spaces, punctuation and other characters. 
 - Fixing a bug in the Vigenere coset reassembly and a mismatch between how the key index advances on encryption/decryption vs how cosets were split.
 - Creating a measure base file for all the algorithms' breakers.
 - Generating english and spanish text.
 - Fixing a bug in the monoalphabetic cipher where decrypting lowercase/mixed-case ciphertext (or using a lowercase key) silently returned it unchanged instead of decrypting it.
 - Building the C4 frequency assistant (`assist.py`) and its tests.
 - Recovering the real key for the C4 cryptogram (used only in `measure_assist.py`, to grade the suggested mapping, never inside `assist.py` itself) with a quadgram-based hill-climbing/simulated-annealing search against public-domain English text, to know the ground truth for the report-task questions.
-- Redacting answers and this file. 
+- Redacting answers and this file.
+- Reviewing the whole project against the handout: renaming functions to the handout names, making every cipher go through `to_numbers`/`to_letters` (normalised output), stricter key validation (non A-Z letters in keys, empty XOR key, unknown language), and rewriting the tests so every part has check values, round-trips, invalid keys, edge cases and 20 generated ciphertexts per breaker. Measurements were re-run afterwards. 

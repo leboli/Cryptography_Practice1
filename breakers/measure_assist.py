@@ -3,7 +3,8 @@
 # suggested mapping are right. The real key below was worked out by hand
 # (starting from the report's trigram/bigram hints), assist.py never uses it.
 # Run with: py -m breakers.measure_assist
-from breakers.assist import clean_letters, suggested_mapping, report
+from breakers.assist import suggested_mapping, report
+from utils.basics import normalise
 from utils.constants import ENGLISH_FREQUENCY_TABLE
 
 CRYPTOGRAM = """QATNT YSMHQ XJOCY HKATM FSNQI TUTMP TKTIP JIDTT KHIGQ ATCEG
@@ -27,10 +28,8 @@ if __name__ == "__main__":
     print(report(CRYPTOGRAM, "en"))
     print()
 
-    letters = clean_letters(CRYPTOGRAM, set(ENGLISH_FREQUENCY_TABLE))
+    letters = normalise(CRYPTOGRAM)
     mapping = suggested_mapping(letters, ENGLISH_FREQUENCY_TABLE)
     correct = sum(1 for c, p in mapping.items() if TRUE_KEY.get(c) == p)
     print(f"Suggested mapping accuracy: {correct}/{len(TRUE_KEY)} letters correct")
     print(f"Real plaintext: {TRUE_PLAINTEXT}")
-
-

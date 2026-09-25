@@ -1,171 +1,128 @@
 import pytest
-from utils.basics import modinv, xor_bytes, egcd, to_numbers, to_letters
+
+from utils.basics import normalise, to_numbers, to_letters, egcd, modinv, xor_bytes
 
 
-class TestModinv:
-    """Test modular inverse function"""
-    
-    def test_modinv_basic_cases(self):
+class TestCheckValues:
+    """Values published in the handout (Part A)"""
+
+    def test_modinv_values(self):
         assert modinv(5, 26) == 21
         assert modinv(7, 26) == 15
         assert modinv(17, 26) == 23
-    
-    def test_modinv_no_inverse(self):
+
+    def test_modinv_raises(self):
         with pytest.raises(ValueError):
             modinv(13, 26)
         with pytest.raises(ValueError):
             modinv(2, 26)
-    
-    def test_modinv_negative_input(self):
-        result = modinv(-3, 7)
-        assert ((-3 * result) % 7) == 1
-    
-    def test_modinv_prime_modulus(self):
-        assert modinv(1, 11) == 1
-        assert modinv(2, 11) == 6
-        assert modinv(5, 11) == 9
-    
-    def test_modinv_with_1(self):
-        assert modinv(1, 100) == 1
-    
-    def test_modinv_large_numbers(self):
-        result = modinv(123, 1000007)
-        assert (123 * result) % 1000007 == 1
-    
-    def test_modinv_error_message_includes_value(self):
-        with pytest.raises(ValueError) as exc_info:
-            modinv(4, 8)
-        assert "4" in str(exc_info.value)
 
-
-class TestXorBytes:
-
-    def test_xor_basic(self):
+    def test_xor_value(self):
         assert xor_bytes(b"HELLO", b"KEYKE").hex() == "030015070a"
-    
-    def test_xor_roundtrip_property(self):
-        data = b"HELLO WORLD"
-        key = b"SECRET"
-        encrypted = xor_bytes(data, key)
-        decrypted = xor_bytes(encrypted, key)
-        assert decrypted == data
-    
-    def test_xor_empty_data(self):
-        result = xor_bytes(b"", b"KEY")
-        assert result == b""
-    
-    def test_xor_single_byte_key(self):
-        data = b"HELLO"
-        key = b"X"
-        encrypted = xor_bytes(data, key)
-        decrypted = xor_bytes(encrypted, key)
-        assert decrypted == data
-    
-    def test_xor_key_longer_than_data(self):
-        data = b"HI"
-        key = b"VERYLONGKEY"
-        encrypted = xor_bytes(data, key)
-        decrypted = xor_bytes(encrypted, key)
-        assert decrypted == data
-    
-    def test_xor_binary_data(self):
-        data = bytes([0, 1, 127, 128, 255])
-        key = bytes([42])
-        encrypted = xor_bytes(data, key)
-        decrypted = xor_bytes(encrypted, key)
-        assert decrypted == data
-    
-    def test_xor_zero_bytes_in_data(self):
-        data = b"\x00\x00\x00"
-        key = b"ABC"
-        encrypted = xor_bytes(data, key)
-        assert encrypted == key
-    
-    def test_xor_same_data_and_key(self):
-        data = b"TEST"
-        key = b"TEST"
-        encrypted = xor_bytes(data, key)
-        assert encrypted == b"\x00\x00\x00\x00"
 
 
-class TestEgcd:
-    """Test extended GCD function"""
-    
-    def test_egcd_basic(self):
-        gcd, x, y = egcd(30, 12)
-        assert gcd == 6
-        assert 30 * x + 12 * y == 6
-    
-    def test_egcd_coprime(self):
-        gcd, x, y = egcd(7, 5)
-        assert gcd == 1
-        assert 7 * x + 5 * y == 1
-    
-    def test_egcd_negative_inputs(self):
-        gcd, x, y = egcd(-30, 12)
-        assert gcd == 6
-        assert -30 * x + 12 * y == 6
-    
-    def test_egcd_both_negative(self):
-        gcd, x, y = egcd(-30, -12)
-        assert gcd == 6
-        assert -30 * x + (-12) * y == 6
-    
-    def test_egcd_with_zero(self):
-        gcd, x, y = egcd(5, 0)
-        assert gcd == 5
-        assert 5 * x + 0 * y == 5
-    
-    def test_egcd_bezout_identity(self):
-        for a, b in [(17, 13), (100, 35), (-42, 28)]:
-            gcd, x, y = egcd(a, b)
-            assert a * x + b * y == gcd
+class TestNormalise:
+    def test_uppercases_and_removes_non_letters(self):
+        assert normalise("Hello, World! 123") == "HELLOWORLD"
+
+    def test_folds_accents(self):
+        assert normalise("Mañana, canción") == "MANANACANCION"
+
+    def test_no_letters(self):
+        assert normalise("123 !?") == ""
 
 
-class TestToNumbers:
-    """Test text to number conversion"""
-
-    def test_to_numbers_basic(self):
+class TestToNumbersToLetters:
+    def test_to_numbers(self):
         assert to_numbers("ABC") == [0, 1, 2]
+        assert to_numbers("ABCDEFGHIJKLMNOPQRSTUVWXYZ") == list(range(26))
 
-    def test_to_numbers_full_alphabet(self):
-        result = to_numbers("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-        assert result == list(range(26))
+    def test_to_numbers_normalises_input(self):
+        assert to_numbers("a b, c!") == [0, 1, 2]
 
-    def test_to_numbers_single_letter(self):
-        assert to_numbers("Z") == [25]
-
-    def test_to_numbers_repeated(self):
-        assert to_numbers("AAA") == [0, 0, 0]
-
-
-class TestToLetters:
-    """Test number to text conversion"""
-
-    def test_to_letters_basic(self):
+    def test_to_letters(self):
         assert to_letters([0, 1, 2]) == "ABC"
-
-    def test_to_letters_full_range(self):
         assert to_letters(list(range(26))) == "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    def test_to_letters_single(self):
-        assert to_letters([25]) == "Z"
+    def test_round_trip(self):
+        assert to_letters(to_numbers("THEQUICKBROWNFOX")) == "THEQUICKBROWNFOX"
+        assert to_numbers(to_letters([5, 10, 15, 20, 25, 0])) == [5, 10, 15, 20, 25, 0]
 
-    def test_to_letters_empty(self):
+    def test_to_letters_rejects_out_of_range(self):
+        with pytest.raises(ValueError):
+            to_letters([26])
+        with pytest.raises(ValueError):
+            to_letters([-1])
+
+    def test_edge_cases(self):
+        assert to_numbers("") == []
+        assert to_numbers("!!!") == []
+        assert to_numbers("z") == [25]
         assert to_letters([]) == ""
 
 
-class TestRoundtrips:
-    """Test conversions roundtrip correctly"""
+class TestEgcd:
+    @pytest.mark.parametrize("a, b, expected_gcd", [
+        (30, 12, 6), (7, 5, 1), (17, 13, 1), (100, 35, 5), (5, 0, 5), (0, 5, 5),
+    ])
+    def test_bezout_identity(self, a, b, expected_gcd):
+        gcd, x, y = egcd(a, b)
+        assert gcd == expected_gcd
+        assert a * x + b * y == gcd
 
-    def test_numbers_to_letters_roundtrip(self):
-        original = "THEQUICKBROWNFOX"
-        nums = to_numbers(original)
-        result = to_letters(nums)
-        assert result == original
-    
-    def test_letters_to_numbers_roundtrip(self):
-        original = [5, 10, 15, 20, 25, 0]
-        letters = to_letters(original)
-        result = to_numbers(letters)
-        assert result == original
+    @pytest.mark.parametrize("a, b", [(-30, 12), (30, -12), (-30, -12), (-42, 28), (-7, 26)])
+    def test_negative_inputs(self, a, b):
+        gcd, x, y = egcd(a, b)
+        assert gcd > 0
+        assert a * x + b * y == gcd
+
+
+class TestModinv:
+    def test_inverse_for_every_valid_a_mod_26(self):
+        for a in [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]:
+            inv = modinv(a, 26)
+            assert 0 <= inv < 26
+            assert (a * inv) % 26 == 1
+
+    def test_negative_input(self):
+        assert modinv(-3, 7) == 2          # -3 * 2 = -6 = 1 (mod 7)
+        assert modinv(-5, 26) == 5         # -5 is 21 mod 26, and 21 * 5 = 105 = 1 (mod 26)
+
+    def test_large_numbers(self):
+        assert (123 * modinv(123, 1000007)) % 1000007 == 1
+
+    def test_error_message_names_the_value(self):
+        with pytest.raises(ValueError, match="13"):
+            modinv(13, 26)
+
+    def test_rejects_every_a_not_coprime_with_26(self):
+        for a in [0, 2, 4, 6, 8, 10, 12, 13, 14, 16, 18, 20, 22, 24, 26]:
+            with pytest.raises(ValueError):
+                modinv(a, 26)
+
+    def test_does_not_search(self):
+        # a search loop over range(m) would take forever here, egcd is instant
+        m = 10 ** 30 + 57
+        assert (7 * modinv(7, m)) % m == 1
+
+
+class TestXorBytes:
+    @pytest.mark.parametrize("data, key", [
+        (b"HELLO WORLD", b"SECRET"),
+        (b"HELLO", b"X"),                          # single byte key
+        (b"HI", b"VERYLONGKEY"),                   # key longer than data
+        (bytes([0, 1, 127, 128, 255]), bytes([42])),
+        (b"", b"KEY"),                             # empty data
+    ])
+    def test_round_trip(self, data, key):
+        assert xor_bytes(xor_bytes(data, key), key) == data
+
+    def test_key_repeats_cyclically(self):
+        assert xor_bytes(b"\x00\x00\x00\x00\x00", b"AB") == b"ABABA"
+
+    def test_same_data_and_key_gives_zeros(self):
+        assert xor_bytes(b"TEST", b"TEST") == b"\x00\x00\x00\x00"
+
+    def test_empty_key_rejected(self):
+        with pytest.raises(ValueError):
+            xor_bytes(b"HELLO", b"")

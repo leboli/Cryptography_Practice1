@@ -1,8 +1,8 @@
 from collections import Counter
 
+from breakers.break_caesar import frequency_table
+from utils.basics import normalise
 from utils.constants import (
-    ENGLISH_FREQUENCY_TABLE,
-    SPANISH_FREQUENCY_TABLE,
     ENGLISH_BIGRAM_FREQUENCY_TABLE,
     ENGLISH_TRIGRAM_FREQUENCY_TABLE,
     SPANISH_BIGRAM_FREQUENCY_TABLE,
@@ -13,10 +13,6 @@ from utils.constants import (
 def by_count(items):
     # sort (key, count) pairs by count descending, ties alphabetically
     return sorted(items, key=lambda kv: (-kv[1], kv[0]))
-
-
-def clean_letters(ciphertext: str, alphabet: set[str]) -> str:
-    return "".join(c for c in ciphertext.upper() if c in alphabet)
 
 
 def ngrams(letters: str, n: int) -> list[str]:
@@ -57,16 +53,15 @@ def suggested_mapping(letters: str, freq_table: dict[str, float]) -> dict[str, s
 
 
 def report(ciphertext: str, language: str = "en") -> str:
+    freq_table = frequency_table(language)
     if language == "es":
-        name = "Spanish"
-        freq_table, bigram_table, trigram_table = (
-            SPANISH_FREQUENCY_TABLE, SPANISH_BIGRAM_FREQUENCY_TABLE, SPANISH_TRIGRAM_FREQUENCY_TABLE)
+        name, bigram_table, trigram_table = (
+            "Spanish", SPANISH_BIGRAM_FREQUENCY_TABLE, SPANISH_TRIGRAM_FREQUENCY_TABLE)
     else:
-        name = "English"
-        freq_table, bigram_table, trigram_table = (
-            ENGLISH_FREQUENCY_TABLE, ENGLISH_BIGRAM_FREQUENCY_TABLE, ENGLISH_TRIGRAM_FREQUENCY_TABLE)
+        name, bigram_table, trigram_table = (
+            "English", ENGLISH_BIGRAM_FREQUENCY_TABLE, ENGLISH_TRIGRAM_FREQUENCY_TABLE)
 
-    letters = clean_letters(ciphertext, set(freq_table))
+    letters = normalise(ciphertext)
     lines = []
 
     def section(title):

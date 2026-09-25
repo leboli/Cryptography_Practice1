@@ -1,15 +1,9 @@
-def shift(text: str, key: int) -> str:
-    result = ""
-    for c in text:
-        if "A" <= c <= "Z":
-            c = chr((ord(c) - ord("A") + key) % 26 + ord("A"))
-        result += c
-    return result
+from utils.basics import to_numbers, to_letters
 
 
-def encrypt(plaintext: str, key: int) -> str:
-    return shift(plaintext.upper().strip(), key)
+def encrypt(plaintext: str, k: int) -> str:
+    return to_letters([(x + k) % 26 for x in to_numbers(plaintext)])
 
 
-def decrypt(ciphertext: str, key: int) -> str:
-    return shift(ciphertext, -key).lower()
+def decrypt(ciphertext: str, k: int) -> str:
+    return encrypt(ciphertext, -k)

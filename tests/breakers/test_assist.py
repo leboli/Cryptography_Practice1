@@ -1,7 +1,6 @@
 import pytest
 
 from breakers.assist import (
-    clean_letters,
     ngrams,
     letter_frequencies,
     repeated_ngrams,
@@ -10,32 +9,15 @@ from breakers.assist import (
     suggested_mapping,
     report,
 )
-from utils.constants import ENGLISH_FREQUENCY_TABLE, SPANISH_FREQUENCY_TABLE
+from breakers.measure_assist import TRUE_KEY
+from utils.basics import normalise
+from utils.constants import ENGLISH_FREQUENCY_TABLE
 
 CRYPTOGRAM = (
     "QATNT YSMHQ XJOCY HKATM FSNQI TUTMP TKTIP JIDTT KHIGQ ATCEG "
     "JMHQA FNTYM TQRTY CSNTJ IEXQA TDTXY CIRTY ACIGT PVATI HQHNY "
     "JFKMJ FHNTP"
 )
-
-
-class TestCleanLetters:
-    def test_strips_spaces_punctuation_and_digits(self):
-        alphabet = set(ENGLISH_FREQUENCY_TABLE.keys())
-        assert clean_letters("Hi, there! 123", alphabet) == "HITHERE"
-
-    def test_uppercases_input(self):
-        alphabet = set(ENGLISH_FREQUENCY_TABLE.keys())
-        assert clean_letters("abc", alphabet) == "ABC"
-
-    def test_drops_letters_outside_the_language_alphabet(self):
-        # Ñ is not part of ENGLISH_FREQUENCY_TABLE
-        alphabet = set(ENGLISH_FREQUENCY_TABLE.keys())
-        assert clean_letters("NIÑO", alphabet) == "NIO"
-
-    def test_keeps_n_tilde_for_spanish(self):
-        alphabet = set(SPANISH_FREQUENCY_TABLE.keys())
-        assert clean_letters("NIÑO", alphabet) == "NIÑO"
 
 
 class TestNgrams:
@@ -95,6 +77,11 @@ class TestSuggestedMapping:
         mapping = suggested_mapping("TTTTAAABB", ENGLISH_FREQUENCY_TABLE)
         assert mapping["T"] == "E"  # most frequent English letter
 
+    def test_gets_3_of_22_letters_right_on_the_cryptogram(self):
+        mapping = suggested_mapping(normalise(CRYPTOGRAM), ENGLISH_FREQUENCY_TABLE)
+        assert len(mapping) == 22
+        assert {c for c in mapping if mapping[c] == TRUE_KEY[c]} == {"T", "U", "X"}
+
     def test_covers_every_distinct_cipher_letter(self):
         letters = "TTTAAABBC"
         mapping = suggested_mapping(letters, ENGLISH_FREQUENCY_TABLE)
@@ -117,7 +104,12 @@ class TestReport:
 
     def test_finds_the_known_repeated_trigram(self):
         text = report(CRYPTOGRAM, "en")
-        assert "QAT: count=3" in text
+        assert "QAT: count=3, positions=[1, 45, 74]" in text
+
+    def test_lists_every_ciphertext_letter(self):
+        text = report(CRYPTOGRAM, "en")
+        for letter in set(normalise(CRYPTOGRAM)):
+            assert f"{letter} -> " in text
 
     def test_finds_the_known_doubled_letter(self):
         text = report(CRYPTOGRAM, "en")
@@ -130,6 +122,14 @@ class TestReport:
         text = report(CRYPTOGRAM, "es")
         assert "Language: Spanish" in text
 
-    def test_empty_ciphertext_does_not_crash(self):
-        text = report("", "en")
-        assert "Total letters analyzed: 0" in text
+    def test_ignores_case_spaces_and_punctuation(self):
+        assert report(CRYPTOGRAM.lower().replace(" ", ", ")) == report(CRYPTOGRAM)
+
+    def test_unknown_language_rejected(self):
+        with pytest.raises(ValueError):
+            report(CRYPTOGRAM, "fr")
+
+    @pytest.mark.parametrize("ciphertext", ["", "123 !?", "Q"])
+    def test_tiny_inputs_do_not_crash(self, ciphertext):
+        text = report(ciphertext, "en")
+        assert f"Total letters analyzed: {len(normalise(ciphertext))}" in text

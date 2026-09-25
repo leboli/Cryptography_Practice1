@@ -6,6 +6,7 @@ import random
 
 from cyphers.caesar import encrypt as caesar_encrypt
 from breakers.break_caesar import break_caesar
+from utils.basics import normalise
 from utils.constants import ENGLISH_TEXT, SPANISH_TEXT
 
 LENGTHS = [20, 30, 40, 60, 100]
@@ -15,10 +16,10 @@ random.seed(42)
 
 
 def random_fragment(text: str, length: int) -> str:
-    # random piece of text with exactly `length` letters
-    letters = [i for i, c in enumerate(text) if c.isalpha()]
+    # random piece of the (normalised) text with exactly `length` letters
+    letters = normalise(text)
     start = random.randrange(len(letters) - length + 1)
-    return text[letters[start]:letters[start + length - 1] + 1]
+    return letters[start:start + length]
 
 
 def recovery_rate(text: str, length: int, language: str) -> float:
